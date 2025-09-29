@@ -62,4 +62,3 @@ for grafo in [matrizGrafoA, matrizGrafoB, matrizGrafoC, matrizGrafoD]:
     print()
     grafo.maior_ocorrencia(dic_vertices)
     print()
-    grafo.ciclos_Hamiltonianos()
