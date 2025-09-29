@@ -4,17 +4,28 @@ class MatrizIncidencia:
         self.num_vertices = num_vertices
         self.arestas = arestas
         self.matriz = []
+        self._criar_matriz_incidencia()
 
-    def criar_matriz_incidencia(self):
-        num_arestas = len(self.arestas)
+    def _criar_matriz_incidencia(self):
+    # Normaliza as arestas para evitar duplicatas (ex: (1,3) == (3,1))
+        arestas_normalizadas = []
+        vistos = set()
+
+        for u, v in self.arestas:
+            aresta = tuple(sorted((u, v)))  # garante (menor, maior)
+            if aresta not in vistos:
+                vistos.add(aresta)
+                arestas_normalizadas.append(aresta)
+
+        num_arestas = len(arestas_normalizadas)
         matriz_incidencia = [[0 for _ in range(num_arestas)] for _ in range(self.num_vertices)]
 
-        for j, aresta in enumerate(self.arestas):
-            u, v = aresta
+        for j, (u, v) in enumerate(arestas_normalizadas):
             matriz_incidencia[u][j] = 1
             matriz_incidencia[v][j] = 1
 
         self.matriz = matriz_incidencia
+
     
     def apresentar_matriz(self):
         for linha in self.matriz:
@@ -64,5 +75,49 @@ class MatrizIncidencia:
             else:
                 freq[grau] = 1
                 
-        print(freq)
-        return freq
+        for g in sorted(freq):
+            print(f"Grau {g}: {freq[g]} vértices")
+    
+    def dirac(self):
+        # Teorema de Dirac
+        contagens = self._contar_arestas_de_cada_vertice()
+        n = self.num_vertices
+        if n < 3:
+            print("O grafo não possui ciclos Hamiltonianos (menos de 3 vértices).")
+            return
+        if all(grau >= n / 2 for grau in contagens):
+            print("O grafo possui ciclos Hamiltonianos (Teorema de Dirac).")
+        else:
+            print("O grafo pode não possuir ciclos Hamiltonianos (Teorema de Dirac não satisfeito).")
+            
+    def ore(self):
+        # Teorema de Ore
+        contagens = self._contar_arestas_de_cada_vertice()
+        n = self.num_vertices
+        if n < 3:
+            print("O grafo não possui ciclos Hamiltonianos (menos de 3 vértices).")
+            return
+        
+        for i in range(n):
+            for j in range(i + 1, n):
+                if all(self.matriz[i][k] == 0 or self.matriz[j][k] == 0 for k in range(len(self.matriz[0]))):
+                    if contagens[i] + contagens[j] < n:
+                        print("O grafo pode não possuir ciclos Hamiltonianos (Teorema de Ore não satisfeito).")
+                        return
+        print("O grafo possui ciclos Hamiltonianos (Teorema de Ore).")
+        
+    def bondy(self):
+        # Teorema de Bondy-Chvátal
+        contagens = self._contar_arestas_de_cada_vertice()
+        n = self.num_vertices
+        if n < 3:
+            print("O grafo não possui ciclos Hamiltonianos (menos de 3 vértices).")
+            return
+        
+        for i in range(n):
+            for j in range(i + 1, n):
+                if all(self.matriz[i][k] == 0 or self.matriz[j][k] == 0 for k in range(len(self.matriz[0]))):
+                    if contagens[i] + contagens[j] < n:
+                        print("O grafo pode não possuir ciclos Hamiltonianos (Teorema de Bondy-Chvátal não satisfeito).")
+                        return
+        print("O grafo possui ciclos Hamiltonianos (Teorema de Bondy-Chvátal).")
